@@ -27,24 +27,24 @@ FIO 希望能解决前端复杂应用中数据的输入、输出、解析、打�
 
 FIO 需要以下最进本的数据类的支持。它们的一些状态可能对于业务逻辑的运行有用。
 
-### `fio.user.User`
+### fio.user.User
 
 表示一个用户，其中包含的字段为：
 
-#### `User.id`
+#### User.id
 
 表示用户的 id
 
-#### `User.username`
+#### User.username
 
 表示用户的用户名
 
 
-### `fio.file.Data`
+### fio.file.Data
 
 表示一个数据，这个数据用于在过滤器中传递，其中包含的字段包括：
 
-#### `Data.type`
+#### Data.type
 
 表示文件的数据类型，支持的取值以及意义分别为：
 
@@ -57,77 +57,77 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 允许过滤器拓展并修改该字段，但原则是过滤的最原始 source 和最终的 result 只能是上述三种类型。
 
-#### `Data.content`
+#### Data.content
 
 表示文件的数据。针对不同的 `type` 属性会有不同的类型。
 
 
-### `fio.file.File`
+### fio.file.File
 
 表示一个文件，其中包含的字段包括：
 
-#### `File.path`
+#### File.path
 
 文件的路径，标识文件的位置，针对不同的提供方可以有会有不同的格式
 
-#### `File.name`
+#### File.name
 
 表示文件的名称（不包含扩展名）
 
-#### `File.extension`
+#### File.extension
 
 表示文件的扩展名，字母部分应全部小写，包含字母前的 '.' 号，如 ".jpg", ".xmind" 等。
 
-#### `File.format`
+#### File.format
 
 表示文件的格式，应该以 [MIME](http://zh.wikipedia.org/wiki/%E5%A4%9A%E7%94%A8%E9%80%94%E4%BA%92%E8%81%AF%E7%B6%B2%E9%83%B5%E4%BB%B6%E6%93%B4%E5%B1%95) 格式描述。如 "text/plain"、"application/json"、"application/xmind" 等。
 
-#### `File.data`
+#### File.data
 
 表示文件的数据，类型是 `fio.file.Data`
 
-#### `File.isDir`
+#### File.isDir
 
 表示文件是否一个目录
 
-#### `File.size`
+#### File.size
 
 表示文件的大小，单位是字节。如果文件是目录，该值为 0。
 
-#### `File.createTime`
+#### File.createTime
 
 表示文件的创建时间
 
-#### `File.modifyTime`
+#### File.modifyTime
 
 表示文件的修改时间
 
 
-### `fio.file.FileRequest`
+### fio.file.FileRequest
 
 抽象类，表示一个文件操作请求，所有文件请求都有 fio 产生，交给提供方处理。
 
-#### `FileRequest.path`
+#### FileRequest.path
 
 表示请求的路径，比如要读取、写入、移动、列表、删除的路径。
 
-#### `FileRequest.user`
+#### FileRequest.user
 
 表示发送请求的用户
 
-#### `FileRequest.method`
+#### FileRequest.method
 
 表示要进行的文件操作，允许的取值及其意义为：
 
-* fio.file.METHOD_READ - 文件读取
-* fio.file.METHOD_WRITE - 文件写入
-* fio.file.METHOD_LIST - 文件列表
-* fio.file.METHOD_MOVE - 文件移动
-* fio.file.METHOD_DELETE - 文件删除。
-* fio.file.METHOD_ACL_READ - 文件 ACL 读取
-* fio.file.METHOD_ACL_WRITE - 文件 ACL 写入
+* `fio.file.METHOD_READ` - 文件读取
+* `fio.file.METHOD_WRITE` - 文件写入
+* `fio.file.METHOD_LIST` - 文件列表
+* `fio.file.METHOD_MOVE` - 文件移动
+* `fio.file.METHOD_DELETE` - 文件删除。
+* `fio.file.METHOD_ACL_READ` - 文件 ACL 读取
+* `fio.file.METHOD_ACL_WRITE` - 文件 ACL 写入
 
-#### `FileRequest.path`
+#### FileRequest.path
 
 * 请求文件读取时，表示要读取的文件的路径
 * 请求文件写入时，表示要写入的文件的路径
@@ -137,7 +137,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * 请求文件 ACL 读取时，表示要读取 ACL 的文件的路径
 * 请求文件 ACL 写入时，表示要写入 ACL 的文件的路径
 
-#### `FileRequest.dupPolicy`
+#### FileRequest.dupPolicy
 
 在进行文件写入的时候，表示遇到重复文件时采取的策略，允许的取值及其意义为：
 
@@ -145,33 +145,33 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 `fio.file.DUP_FAIL` - 表示应该报错指示文件已存在
 `fio.file.DUP_RENAME` - 表示应该重命名保存的文件使其不重复
 
-#### `FileRequest.newPath`
+#### FileRequest.newPath
 
 在进行文件移动的时候，表示要移动的文件的新路径。
 
-#### `FileRequest.acl`
+#### FileRequest.acl
 
 进行文件 ACL 写入的时候，要写入的 ACL
 
-#### `FileRequest.extra`
+#### FileRequest.extra
 
 客户调用文件请求时附加的未约定的字段。可能针对具体的提供方有用
 
 
 
-### `fio.file.Acl`
+### fio.file.Acl
 
 表示一个访问控制列表，其中包含的字段或方法为：
 
-#### `Acl.path`
+#### Acl.path
 
 访问列表针对的文件或目录
 
-#### `Acl.user`
+#### Acl.user
 
 表示访问列表的目标用户，如果 `Acl.access` 的 PUBLIC 位为真，该字段为 0
 
-#### `Acl.access`
+#### Acl.access
 
 表示支持的访问，支持的取值及其意义为：
 
@@ -211,7 +211,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * 分享给指定用户协同编辑，指定用户的 acl 取值为 `ACCESS_READ` | `ACCESS_WRITE`（0x0006）
 * 分享给所有人查看，指定 acl 的取值为 `ACCESS_READ` | `ACCESS_PUBLIC`（0x0003）
 
-#### `Acl.can(access)`
+#### Acl.can(access)
 
 给定的访问类型，返回是否允许。
 
@@ -220,7 +220,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 FIO 提供以下接口
 
-### `fio.user.impl(): void`
+### fio.user.impl(): void
 
 用户系统的实现接口，需要实现的代码如下：
 
@@ -252,21 +252,21 @@ fio.user.impl({
 });
 ```
 
-### `fio.user.current(): Promise<fio.user.User>`
+### fio.user.current(): Promise<fio.user.User>
 
 获取当前的用户，获取到的用户的状态不一定是 `ACTIVED`，可能是会话已过时的用户。
 
-### `fio.user.login(): Promise<fio.user.User>`
+### fio.user.login(): Promise<fio.user.User>
 
 进行用户登录。这里登录可能跳出其它页面然后回调回来，所以页面加载的时候应该使用 `fio.user.current()` 来检查是否登录成功。
 
-### `fio.user.logout(): Promise<fio.user.User>`
+### fio.user.logout(): Promise<fio.user.User>
 
 进行用户登出。
 
 
 
-### `fio.provider.register(): void`
+### fio.provider.register(): void
 
 注册一个 IO 的提供方。提供方需要解决处理文件请求。注册的示例代码如下：
 
@@ -303,7 +303,7 @@ fio.provider.register('netdisk', {
 });
 ```
 
-### `fio.provider.init(): void`
+### fio.provider.init(): void
 
 初始化指定的 IO 提供方。比如：
 
@@ -315,7 +315,7 @@ fio.provider.init('netdisk', {
 });
 ```
 
-### `fio.provider.use(): void`
+### fio.provider.use(): void
 
 使用指定的 IO 提供方，指定后，后续所有文件操作都使用指定的提供方处理。比如：
 
@@ -324,7 +324,7 @@ fio.provider.init('netdisk', {
 fio.provider.use('netdisk');
 ```
 
-### `fio.file.read(): Promise<fio.file.File>`
+### fio.file.read(): Promise<fio.file.File>
 
 使用上次指定的 IO 提供方读取文件。
 
@@ -340,7 +340,7 @@ fio.file.read({
 });
 ```
 
-### `fio.file.write(): Promise<fio.file.File>`
+### fio.file.write(): Promise<fio.file.File>
 
 使用上次指定的提供方写入文件。
 
@@ -356,7 +356,7 @@ fio.file.write({
 });
 ```
 
-### `fio.file.list(): Promise<fio.file.File[]>`
+### fio.file.list(): Promise<fio.file.File[]>
 
 使用上次指定的提供方列出文件
 
@@ -370,7 +370,7 @@ fio.file.list({
 });
 ```
 
-### `fio.file.move(): Promise<fio.file.File>`
+### fio.file.move(): Promise<fio.file.File>
 
 使用上次指定的提供方移动文件
 
@@ -381,7 +381,7 @@ fio.file.move({
 });
 ```
 
-### `fio.file.delete(): Promise<fio.file.File>`
+### fio.file.delete(): Promise<fio.file.File>
 
 使用上次指定的提供方删除文件
 
@@ -391,7 +391,7 @@ fio.file.delete({
 });
 ```
 
-### `fio.file.acl(): Promise<fio.file.ACL[]>`
+### fio.file.acl(): Promise<fio.file.ACL[]>
 
 使用上次指定的提供方列出文件 ACL，并且支持追加操作
 
@@ -416,7 +416,7 @@ fio.file.acl({
 ```
 
 
-### `fio.filter.register(): void`
+### fio.filter.register(): void
 
 注册一个数据过滤器。需要实现的方法如下：
 
@@ -445,7 +445,7 @@ fio.filter.register('xmind', {
 });
 ```
 
-### `fio.filter.apply(): Promise<fio.file.Data>`
+### fio.filter.apply(): Promise<fio.file.Data>
 
 使用指定的过滤器过滤数据。
 
