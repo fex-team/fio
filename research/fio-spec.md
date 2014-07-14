@@ -1,4 +1,4 @@
-# FIO 接口规范说明
+#  接口规范说明
 
 ## 定位
 
@@ -31,11 +31,11 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 表示一个用户，其中包含的字段为：
 
-#### User.id
+#### .id
 
 表示用户的 id
 
-#### User.username
+#### .username
 
 表示用户的用户名
 
@@ -44,7 +44,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 表示一个数据，这个数据用于在过滤器中传递，其中包含的字段包括：
 
-#### Data.type
+#### .type
 
 表示文件的数据类型，支持的取值以及意义分别为：
 
@@ -57,7 +57,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 允许过滤器拓展并修改该字段，但原则是过滤的最原始 source 和最终的 result 只能是上述三种类型。
 
-#### Data.content
+#### .content
 
 表示文件的数据。针对不同的 `type` 属性会有不同的类型。
 
@@ -66,39 +66,39 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 表示一个文件，其中包含的字段包括：
 
-#### File.path
+#### .path
 
 文件的路径，标识文件的位置，针对不同的提供方可以有会有不同的格式
 
-#### File.name
+#### .name
 
 表示文件的名称（不包含扩展名）
 
-#### File.extension
+#### .extension
 
 表示文件的扩展名，字母部分应全部小写，包含字母前的 '.' 号，如 ".jpg", ".xmind" 等。
 
-#### File.format
+#### .format
 
 表示文件的格式，应该以 [MIME](http://zh.wikipedia.org/wiki/%E5%A4%9A%E7%94%A8%E9%80%94%E4%BA%92%E8%81%AF%E7%B6%B2%E9%83%B5%E4%BB%B6%E6%93%B4%E5%B1%95) 格式描述。如 "text/plain"、"application/json"、"application/xmind" 等。
 
-#### File.data
+#### .data
 
 表示文件的数据，类型是 `fio.file.Data`
 
-#### File.isDir
+#### .isDir
 
 表示文件是否一个目录
 
-#### File.size
+#### .size
 
 表示文件的大小，单位是字节。如果文件是目录，该值为 0。
 
-#### File.createTime
+#### .createTime
 
 表示文件的创建时间
 
-#### File.modifyTime
+#### .modifyTime
 
 表示文件的修改时间
 
@@ -107,15 +107,15 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 抽象类，表示一个文件操作请求，所有文件请求都有 fio 产生，交给提供方处理。
 
-#### FileRequest.path
+#### .path
 
 表示请求的路径，比如要读取、写入、移动、列表、删除的路径。
 
-#### FileRequest.user
+#### .user
 
 表示发送请求的用户
 
-#### FileRequest.method
+#### .method
 
 表示要进行的文件操作，允许的取值及其意义为：
 
@@ -127,7 +127,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * `fio.file.METHOD_ACL_READ` - 文件 ACL 读取
 * `fio.file.METHOD_ACL_WRITE` - 文件 ACL 写入
 
-#### FileRequest.path
+#### .path
 
 * 请求文件读取时，表示要读取的文件的路径
 * 请求文件写入时，表示要写入的文件的路径
@@ -137,7 +137,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * 请求文件 ACL 读取时，表示要读取 ACL 的文件的路径
 * 请求文件 ACL 写入时，表示要写入 ACL 的文件的路径
 
-#### FileRequest.dupPolicy
+#### .dupPolicy
 
 在进行文件写入的时候，表示遇到重复文件时采取的策略，允许的取值及其意义为：
 
@@ -145,15 +145,15 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 `fio.file.DUP_FAIL` - 表示应该报错指示文件已存在
 `fio.file.DUP_RENAME` - 表示应该重命名保存的文件使其不重复
 
-#### FileRequest.newPath
+#### .newPath
 
 在进行文件移动的时候，表示要移动的文件的新路径。
 
-#### FileRequest.acl
+#### .acl
 
 进行文件 ACL 写入的时候，要写入的 ACL
 
-#### FileRequest.extra
+#### .extra
 
 客户调用文件请求时附加的未约定的字段。可能针对具体的提供方有用
 
@@ -163,15 +163,15 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 表示一个访问控制列表，其中包含的字段或方法为：
 
-#### Acl.path
+#### .path
 
 访问列表针对的文件或目录
 
-#### Acl.user
+#### .user
 
 表示访问列表的目标用户，如果 `Acl.access` 的 PUBLIC 位为真，该字段为 0
 
-#### Acl.access
+#### .access
 
 表示支持的访问，支持的取值及其意义为：
 
@@ -211,7 +211,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * 分享给指定用户协同编辑，指定用户的 acl 取值为 `ACCESS_READ` | `ACCESS_WRITE`（0x0006）
 * 分享给所有人查看，指定 acl 的取值为 `ACCESS_READ` | `ACCESS_PUBLIC`（0x0003）
 
-#### Acl.can(access)
+#### .can(access)
 
 给定的访问类型，返回是否允许。
 
