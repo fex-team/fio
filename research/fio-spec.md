@@ -219,7 +219,7 @@ FIO 需要以下最进本的数据类的支持。包括 User、Data、File、Fil
 * 分享给指定用户协同编辑，指定用户的 acl 取值为 `ACCESS_READ` | `ACCESS_WRITE`（0x0006）
 * 分享给所有人查看，指定 acl 的取值为 `ACCESS_READ` | `ACCESS_PUBLIC`（0x0003）
 
-#### .can(access)
+#### `.can(access)`
 
 给定的访问类型，返回是否允许。
 
@@ -228,7 +228,7 @@ FIO 需要以下最进本的数据类的支持。包括 User、Data、File、Fil
 
 FIO 提供以下接口
 
-### fio.user.impl(): void
+### `fio.user.impl(): void`
 
 用户系统的实现接口，需要实现的代码如下：
 
@@ -274,7 +274,7 @@ fio.user.impl({
 
 
 
-### fio.provider.register(): void
+### `fio.provider.register(): void`
 
 注册一个 IO 的提供方。提供方需要解决处理文件请求。注册的示例代码如下：
 
@@ -311,7 +311,7 @@ fio.provider.register('netdisk', {
 });
 ```
 
-### fio.provider.init(): void
+### `fio.provider.init(): void`
 
 初始化指定的 IO 提供方。比如：
 
@@ -323,7 +323,7 @@ fio.provider.init('netdisk', {
 });
 ```
 
-### fio.provider.use(): void
+### `fio.provider.use(): void`
 
 使用指定的 IO 提供方，指定后，后续所有文件操作都使用指定的提供方处理。比如：
 
@@ -434,7 +434,7 @@ fio.file.acl({
 ```
 
 
-### fio.filter.register(): void
+### `fio.filter.register(): void`
 
 注册一个数据过滤器。需要实现的方法如下：
 
