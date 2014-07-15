@@ -260,15 +260,15 @@ fio.user.impl({
 });
 ```
 
-### fio.user.current(): Promise<fio.user.User>
+### `fio.user.current(): Promise<fio.user.User>`
 
 获取当前的用户，获取到的用户的状态必须是 `ACTIVED`。
 
-### fio.user.login(): Promise<fio.user.User>
+### `fio.user.login(): Promise<fio.user.User>`
 
 进行用户登录。这里登录可能跳出其它页面然后回调回来，所以页面加载的时候应该使用 `fio.user.current()` 来检查是否登录成功。
 
-### fio.user.logout(): Promise<fio.user.User>
+### `fio.user.logout(): Promise<fio.user.User>`
 
 进行用户登出。
 
@@ -332,7 +332,7 @@ fio.provider.init('netdisk', {
 fio.provider.use('netdisk');
 ```
 
-### fio.file.read(): Promise<fio.file.File>
+### `fio.file.read(): Promise<fio.file.File>`
 
 使用上次指定的 IO 提供方读取文件。返回已读取的文件（包含已过滤的文件内容）。
 
@@ -348,7 +348,7 @@ fio.file.read({
 });
 ```
 
-### fio.file.write(): Promise<fio.file.File>
+### `fio.file.write(): Promise<fio.file.File>`
 
 使用上次指定的提供方写入文件。返回已写入的文件（包含已过滤的文件内容）。
 
@@ -378,7 +378,7 @@ fio.file.list({
 });
 ```
 
-### fio.file.move(): Promise<fio.file.File>
+### `fio.file.move(): Promise<fio.file.File>`
 
 使用上次指定的提供方移动文件。返回已移动的文件（不包含内容）。
 
@@ -389,7 +389,7 @@ fio.file.move({
 });
 ```
 
-### fio.file.delete(): Promise<fio.file.File>
+### `fio.file.delete(): Promise<fio.file.File>`
 
 使用上次指定的提供方删除文件。返回已删除的文件（不包含内容）。
 
@@ -399,7 +399,7 @@ fio.file.delete({
 });
 ```
 
-### fio.file.mkdir(): Promise<fio.file.File>
+### `fio.file.mkdir(): Promise<fio.file.File>`
 
 使用上次指定的提供方创建目录。返回已创建的目录。
 
@@ -463,7 +463,7 @@ fio.filter.register('xmind', {
 });
 ```
 
-### fio.filter.apply(): Promise<fio.file.Data>
+### `fio.filter.apply(): Promise<fio.file.Data>`
 
 使用指定的过滤器过滤数据。
 
