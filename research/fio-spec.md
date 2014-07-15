@@ -4,11 +4,12 @@ FIO 接口规范说明
 | 版本 | 修订人 | 修订原因 | 修订日期 |
 |-----|-------|---------|---------|
 | 1.0 | 刘家鸣 | 新建 | 2014-07-14 |
+| 1.1 | 刘家鸣 | 添加 mkdir 接口 | 2014-07-15 |
 
 
 ## 定位
 
-FIO 希望能解决前端复杂应用中数据的输入、输出、解析、打包、权限等功能的接口问题，降低其开发成本。其中内置网盘 IO、分享 IO。
+FIO 希望能解决前端复杂应用中数据的输入、输出、解析、打包、权限等功能的接口问题，降低其开发成本。
 
 ## 解决的问题
 
@@ -31,7 +32,7 @@ FIO 希望能解决前端复杂应用中数据的输入、输出、解析、打�
 
 ## 基本数据
 
-FIO 需要以下最进本的数据类的支持。它们的一些状态可能对于业务逻辑的运行有用。
+FIO 需要以下最进本的数据类的支持。包括 User、Data、File、FileRequest。
 
 ### fio.user.User
 
@@ -129,7 +130,8 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * `fio.file.METHOD_WRITE` - 文件写入
 * `fio.file.METHOD_LIST` - 文件列表
 * `fio.file.METHOD_MOVE` - 文件移动
-* `fio.file.METHOD_DELETE` - 文件删除。
+* `fio.file.METHOD_DELETE` - 文件删除
+* `fio.file.METHOD_MKDIR` - 创建目录
 * `fio.file.METHOD_ACL_READ` - 文件 ACL 读取
 * `fio.file.METHOD_ACL_WRITE` - 文件 ACL 写入
 
@@ -140,6 +142,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 * 请求文件列表时，表示要请求列表的目录路径
 * 请求文件移动时，表示要移动的文件的路径
 * 请求文件删除时，表示要删除的文件的路径
+* 请求创建目录时，表示要创建的目录的路径
 * 请求文件 ACL 读取时，表示要读取 ACL 的文件的路径
 * 请求文件 ACL 写入时，表示要写入 ACL 的文件的路径
 
@@ -161,7 +164,7 @@ FIO 需要以下最进本的数据类的支持。它们的一些状态可能对�
 
 #### .extra
 
-客户调用文件请求时附加的未约定的字段。可能针对具体的提供方有用
+客户调用文件请求时附加的未约定的字段。可能针对具体的提供方有用。
 
 
 
@@ -260,7 +263,7 @@ fio.user.impl({
 
 ### fio.user.current(): Promise<fio.user.User>
 
-获取当前的用户，获取到的用户的状态不一定是 `ACTIVED`，可能是会话已过时的用户。
+获取当前的用户，获取到的用户的状态必须是 `ACTIVED`。
 
 ### fio.user.login(): Promise<fio.user.User>
 
@@ -332,7 +335,7 @@ fio.provider.use('netdisk');
 
 ### fio.file.read(): Promise<fio.file.File>
 
-使用上次指定的 IO 提供方读取文件。
+使用上次指定的 IO 提供方读取文件。返回已读取的文件（包含已过滤的文件内容）。
 
 ```js
 // 读取文件
@@ -348,7 +351,7 @@ fio.file.read({
 
 ### fio.file.write(): Promise<fio.file.File>
 
-使用上次指定的提供方写入文件。
+使用上次指定的提供方写入文件。返回已写入的文件（包含已过滤的文件内容）。
 
 ```js
 fio.provider.use('local')
@@ -364,7 +367,7 @@ fio.file.write({
 
 ### fio.file.list(): Promise<fio.file.File[]>
 
-使用上次指定的提供方列出文件
+使用上次指定的提供方列出文件，返回列出的文件列表（不包含内容）。
 
 ```js
 fio.provider.use('netdisk');
@@ -378,7 +381,7 @@ fio.file.list({
 
 ### fio.file.move(): Promise<fio.file.File>
 
-使用上次指定的提供方移动文件
+使用上次指定的提供方移动文件。返回已移动的文件（不包含内容）。
 
 ```js
 fio.file.move({
@@ -389,11 +392,21 @@ fio.file.move({
 
 ### fio.file.delete(): Promise<fio.file.File>
 
-使用上次指定的提供方删除文件
+使用上次指定的提供方删除文件。返回已删除的文件（不包含内容）。
 
 ```js
 fio.file.delete({
     path: '/a.km'
+});
+```
+
+### fio.file.mkdir(): Promise<fio.file.File>
+
+使用上次指定的提供方创建目录。返回已创建的目录。
+
+```js
+fio.file.mkdir({
+    path: '/working/plan'
 });
 ```
 
