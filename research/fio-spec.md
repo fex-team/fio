@@ -17,7 +17,6 @@ FIO 希望能解决前端复杂应用中数据的输入、输出、解析、打�
 2. IO 提供方管理 - fio.provider
 3. 文件管理 - fio.file
 4. 过滤器管理 - fio.filter
-5. 访问管理 - fio.acl
 
 ## 角色及运行说明
 
