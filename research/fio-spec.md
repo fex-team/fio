@@ -334,13 +334,12 @@ fio.provider.use('netdisk');
 
 ### `fio.file.read(): Promise<fio.file.File>`
 
-使用上次指定的 IO 提供方读取文件。返回已读取的文件（包含已过滤的文件内容）。
+使用上次指定的 IO 提供方读取文件。返回已读取的文件。
 
 ```js
 // 读取文件
 fio.file.read({
-    path: 'a.xmind',
-    filters: ['xmind']
+    path: 'a.xmind'
 }).then(function(file) {
     console.log(file.size);
 }).catch(function(e) {
@@ -364,7 +363,7 @@ fio.file.write({
 });
 ```
 
-### fio.file.list(): Promise<fio.file.File[]>
+### `fio.file.list(): Promise<fio.file.File[]>`
 
 使用上次指定的提供方列出文件，返回列出的文件列表（不包含内容）。
 
@@ -409,7 +408,7 @@ fio.file.mkdir({
 });
 ```
 
-### fio.file.acl(): Promise<fio.file.ACL[]>
+### `fio.file.acl(): Promise<fio.file.ACL[]>`
 
 使用上次指定的提供方列出文件 ACL，并且支持追加操作
 
