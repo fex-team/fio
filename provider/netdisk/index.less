@@ -1,0 +1,157 @@
+@theme_h: 224;
+
+html, body, div {
+    margin: 0;
+    padding: 0;
+    font-family: 'Hiragino Sans GB', 'Arial', 'Microsoft Yahei';
+}
+
+body:after {
+    content: ' ';
+    display: block;
+    
+}
+
+body.loading {
+
+}
+
+#app-bar {
+    background: hsl(@theme_h, 18%, 32%);
+    height: 40px;
+    position: relative;
+    color: hsl(0, 0%, 86%);
+    font-size: 14px;
+    
+    #path {
+        position: absolute;
+        display: block;
+        height: 40px;
+        left: 0;
+        top: 0;
+        padding-left: 15px;
+        background: hsl(@theme_h, 18%, 32%);
+        line-height: 40px;
+        font-size: 14px;
+
+        a {
+            display: inline-block;
+            padding: 5px;
+            height: 30px;
+            line-height: 30px;
+            cursor: default;
+
+            &:hover {
+                background-color: hsl(@theme_h, 18%, 38%);
+            }
+
+            &:active {
+                background-color: hsl(@theme_h, 18%, 30%);
+            }
+        }
+    }
+
+    #user {
+        padding-right: 15px;
+        height: 40px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        line-height: 44px;
+
+        #user-head {
+            width: 20px;
+            height: 20px;
+            vertical-align: text-bottom;
+        }
+
+        a {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        #user-head,
+        #user-name,
+        #switch-btn,
+        #logout-btn {
+            display: none;
+        }
+
+        &.logined {
+            #user-head,
+            #user-name,
+            #switch-btn,
+            #logout-btn {
+                display: inline-block;
+            }
+            #login-btn {
+                display: none;
+            }
+        }
+    }
+}
+
+#content {
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: hsl(0, 0%, 95%);
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    &:before {
+        content: 'FIO 网盘示例';
+        display: block;
+        text-align: center;
+        position: absolute;
+        top: 45%;
+        width: 100%;
+        font-size: 30px;
+        color: hsl(0, 0%, 75%);
+        text-shadow: 0 1px hsl(0, 0%, 100%);
+        pointer-event: none;
+    }
+}
+
+#content {
+    div.finder {
+        overflow: hidden;
+    }
+    div.info {
+        position: absolute;
+        left: 252px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        padding: 20px;
+        overflow: auto;
+    }
+    ul.section {
+        display: block;
+        position: absolute;
+        background: #EEE;
+        margin: 0;
+        padding: 10px;
+        list-style: none;
+        width: 250px;
+        bottom: 0;
+        top: 0;
+
+        li {
+            padding: 5px 10px 5px 30px;
+            font-size: 12px;
+            background: url(http://naotu.baidu.com/themes/default/images/menu-icons.png) no-repeat;
+            cursor: default;
+
+            &:hover {
+                background-color: #fff;
+            }
+            &.active {
+                background-color: hsl(@theme_h, 40%, 80%)
+            }
+        }
+    }
+}

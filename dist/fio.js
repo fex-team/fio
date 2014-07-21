@@ -19,21 +19,22 @@
     fio.user = {};
 
 
-    /* 空函数，啥都不做 */
-    var loop = function() {};
-
-
     /* IO 提供方列表 */
     var providerMap = {};
 
     /* FIO 当前使用的 IO 提供方 */
     var currentProvider = null;
 
+    /* 返回值为空的 Promise */
+    var noop = function() {
+        return new Promise.resolve(null);
+    };
+
     /* FIO 当前的用户系统实现 */
     var userImpl = {
-        current: loop,
-        login: loop,
-        logout: loop
+        check: noop,
+        login: noop,
+        logout: noop
     };
 
 
@@ -68,7 +69,17 @@
         this.modifyTime = new Date();
     }
 
-    File.prototype.setPath = function(path) {};
+    File.prototype.setPath = function(path) {
+        var filename, dotpos;
+
+        filename = path.substr(path.lastIndexOf('/') + 1);
+        dotpos = filename.lastIndexOf('.');
+
+        this.extendsion = ~dotpos ? filename.substr(dotpos) : null;
+        this.name = ~dotpos ? filename.substr(0, dotpos) : filename;
+        this.filename = filename;
+        this.path = path;
+    };
 
     /* 数据结构：表示一个访问控制列表记录 */
     function Acl(user, file, access) {
@@ -164,7 +175,7 @@
      *         // handle request
      *     }
      *
-     * })
+     * });
      *
      */
     fio.provider.register = function(name, provider) {
@@ -219,7 +230,7 @@
      * @param  {object} impl
      *     实现的代码，需要实现的方法包括：
      *
-     *     impl.current(): fio.user.User
+     *     impl.check(): fio.user.User
      *         返回当前用户
      *
      *     impl.login(): Promise<fio.user.User>
@@ -233,32 +244,11 @@
         userImpl = impl;
     };
 
-    /**
-     * 返回当前用户
-     *
-     * @return {fio.user.User}
-     */
-    fio.user.current = function() {
-        return userImpl.current.apply(userImpl, arguments);
-    };
-
-    /**
-     * 进行用户登录
-     *
-     * @return {Promise<fio.user.User>}
-     */
-    fio.user.login = function() {
-        return userImpl.login.apply(userImpl, arguments);
-    };
-
-    /**
-     * 进行用户登出
-     *
-     * @return {Promise<fio.user.User>}
-     */
-    fio.user.logout = function() {
-        return userImpl.logout.apply(userImpl, arguments);
-    };
+    ['check', 'login', 'logout'].forEach(function(operation) {
+        fio.user[operation] = function() {
+            return Promise.resolve(userImpl[operation].apply(userImpl, arguments));
+        };
+    });
 
     /**
      * 读取文件
@@ -488,31 +478,35 @@
     ['read', 'write', 'list', 'move', 'delete', 'mkdir', 'readAcl', 'writeAcl'].forEach(function(operation) {
 
         fio.file[operation] = function(opt) {
-            var provider = opt.provider ? providerMap[opt.provider] : currentProvider;
-            var request = new FileRequest(opt.path, operation, fio.user.current());
+            return fio.user.check().then(function(user) {
 
-            if (operation == 'write') {
-                request.dupPolicy = opt.ondup;
-                request.data = new fio.file.Data(opt.content);
-                delete opt.ondup;
-            }
+                var provider = opt.provider ? providerMap[opt.provider] : currentProvider;
+                var request = new FileRequest(opt.path, operation, user);
 
-            if (operation == 'move') {
-                request.newPath = opt.newPath;
-                delete opt.newPath;
-            }
+                if (operation == 'write') {
+                    request.dupPolicy = opt.ondup;
+                    request.data = new fio.file.Data(opt.content);
+                    delete opt.ondup;
+                }
 
-            if (operation == 'writeAcl') {
-                request.acl = opt.acl;
-                delete opt.acl;
-            }
+                if (operation == 'move') {
+                    request.newPath = opt.newPath;
+                    delete opt.newPath;
+                }
 
-            delete opt.provider;
-            delete opt.path;
+                if (operation == 'writeAcl') {
+                    request.acl = opt.acl;
+                    delete opt.acl;
+                }
 
-            request.extra = opt;
+                delete opt.provider;
+                delete opt.path;
 
-            return provider.handle(request);
+                request.extra = opt;
+
+                // 确保返回的是一个 Promise 对象
+                return Promise.resolve(provider.handle(request));
+            });
         };
     });
 

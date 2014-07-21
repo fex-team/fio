@@ -238,10 +238,10 @@ FIO 提供以下接口
 ```js
 fio.user.impl({
     /**
-     * 该方法应该返回当前用户的一个 Promise
+     * 该方法检查当前登录状态，已登录应该返回当前用户的一个 Promise，未登录返回值为 null 的 Promise
      * @return {Promise<fio.user.User>}
      */
-    current: function() {
+    check: function() {
 
     },
     
@@ -263,9 +263,9 @@ fio.user.impl({
 });
 ```
 
-### `fio.user.current(): Promise<fio.user.User>`
+### `fio.user.check(): Promise<fio.user.User>`
 
-获取当前的用户，获取到的用户的状态必须是 `ACTIVED`。
+检查当前用户，如果是已登录的用户，用户的状态必须是 `ACTIVED`，否则是 null。
 
 ### `fio.user.login(): Promise<fio.user.User>`
 

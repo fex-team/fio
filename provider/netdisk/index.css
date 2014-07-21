@@ -1,0 +1,14 @@
+html,body,div{margin:0;padding:0;font-family:'Hiragino Sans GB','Arial','Microsoft Yahei'}
+body:after{content:' ';display:block}
+#app-bar{background:#434b60;height:40px;position:relative;color:#dbdbdb;font-size:14px}#app-bar #path{position:absolute;display:block;height:40px;left:0;top:0;padding-left:15px;background:#434b60;line-height:40px;font-size:14px}#app-bar #path a{display:inline-block;padding:5px;height:30px;line-height:30px;cursor:default}#app-bar #path a:hover{background-color:#4f5972}
+#app-bar #path a:active{background-color:#3f465a}
+#app-bar #user{padding-right:15px;height:40px;position:absolute;right:0;top:0;line-height:44px}#app-bar #user #user-head{width:20px;height:20px;vertical-align:text-bottom}
+#app-bar #user a{text-decoration:underline;cursor:pointer}
+#app-bar #user #user-head,#app-bar #user #user-name,#app-bar #user #switch-btn,#app-bar #user #logout-btn{display:none}
+#app-bar #user.logined #user-head,#app-bar #user.logined #user-name,#app-bar #user.logined #switch-btn,#app-bar #user.logined #logout-btn{display:inline-block}
+#app-bar #user.logined #login-btn{display:none}
+#content{position:absolute;top:40px;bottom:0;left:0;right:0;background:#f2f2f2;overflow-x:auto;overflow-y:hidden}#content:before{content:'FIO 网盘示例';display:block;text-align:center;position:absolute;top:45%;width:100%;font-size:30px;color:#bfbfbf;text-shadow:0 1px #fff;pointer-event:none}
+#content div.finder{overflow:hidden}
+#content div.info{position:absolute;left:252px;top:0;right:0;bottom:0;background:#fff;padding:20px;overflow:auto}
+#content ul.section{display:block;position:absolute;background:#eee;margin:0;padding:10px;list-style:none;width:250px;bottom:0;top:0}#content ul.section li{padding:5px 10px 5px 30px;font-size:12px;background:url(http://naotu.baidu.com/themes/default/images/menu-icons.png) no-repeat;cursor:default}#content ul.section li:hover{background-color:#fff}
+#content ul.section li.active{background-color:#b8c2e0}
