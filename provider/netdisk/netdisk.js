@@ -190,6 +190,7 @@
         window.location.href = urls.authorize + '?' + [
             'client_id=' + apiKey,
             'response_type=token',
+            'scope=basic netdisk',
             'redirect_uri=' + urls.current, // 调回到当前页面，check 的时候就能捕获 AK
             'display=page',
             'force_login=' + (opt && opt.force ? 1 : 0),
