@@ -66,7 +66,7 @@
      *
      */
     function init(opt) {
-        apiKey = opt.apiKey;
+        apiKey = opt.apiKey || apiKey;
     }
 
     /**
@@ -124,6 +124,9 @@
      */
     function check() {
 
+        // 缓存检测
+        if (user && +new Date() - user.validateTime > 600) return user;
+
         var fragment = urlFragment();
 
         // 登录回调；会在参数上有 AK
@@ -170,6 +173,7 @@
             user.smallImage = 'http://tb.himg.baidu.com/sys/portraitn/item/' + ret.portrait;
             user.largeImage = 'http://tb.himg.baidu.com/sys/portrait/item/' + ret.portrait;
             user.access_token = access_token;
+            user.validateTime = +new Date();
 
             return user;
         });
@@ -262,15 +266,22 @@
                 throw new Error('Not Supported File Request:' + request.method);
 
             case fio.file.METHOD_READ:
-                opt.dataType = 'text';
+                opt.dataType = request.dataType;
                 param.method = 'download';
                 break;
 
             case fio.file.METHOD_WRITE:
                 opt.type = 'POST';
                 param.method = 'upload';
-                param.file = request.data.content;
                 param.ondup = request.dupPolicy == fio.file.DUP_OVERWRITE ? 'overwrite' : 'newcopy';
+
+                if (request.data.type == 'blob') {
+                    var form = new FormData();
+                    form.append('file', request.data.content);
+                    opt.url += $.param(param);
+                    opt.data = form;
+                }
+
                 break;
 
             case fio.file.METHOD_LIST:

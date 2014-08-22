@@ -40,7 +40,8 @@ $(function() {
         } else {
             $('#content div.info').html('loading...');
             fio.file.read({
-                path: file.path
+                path: file.path,
+                dataType: file.extension == '.km' ? fio.file.TYPE_TEXT : fio.file.TYPE_BLOB
             }).then(function(file) {
                 $('#content div.info').html(file.data.content);
             });

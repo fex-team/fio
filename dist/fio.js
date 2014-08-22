@@ -75,7 +75,7 @@
         filename = path.substr(path.lastIndexOf('/') + 1);
         dotpos = filename.lastIndexOf('.');
 
-        this.extendsion = ~dotpos ? filename.substr(dotpos) : null;
+        this.extension = ~dotpos ? filename.substr(dotpos) : null;
         this.name = ~dotpos ? filename.substr(0, dotpos) : filename;
         this.filename = filename;
         this.path = path;
@@ -97,6 +97,7 @@
         this.newPath = null;
         this.acl = null;
         this.extra = null;
+        this.dataType = fio.file.TYPE_TEXT;
     }
 
     /* 暴露需要的数据结构 */
@@ -482,6 +483,10 @@
 
                 var provider = opt.provider ? providerMap[opt.provider] : currentProvider;
                 var request = new FileRequest(opt.path, operation, user);
+
+                if (operation == 'read') {
+                    request.dataType = opt.dataType || fio.file.TYPE_TEXT;
+                }
 
                 if (operation == 'write') {
                     request.dupPolicy = opt.ondup;
