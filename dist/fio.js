@@ -70,15 +70,48 @@
     }
 
     File.prototype.setPath = function(path) {
-        var filename, dotpos;
+        fio.file.anlysisPath(path, this);
+    };
 
-        filename = path.substr(path.lastIndexOf('/') + 1);
-        dotpos = filename.lastIndexOf('.');
+    fio.file.anlysisPath = function(path, fill) {
+        fill = fill || {};
 
-        this.extension = ~dotpos ? filename.substr(dotpos) : null;
-        this.name = ~dotpos ? filename.substr(0, dotpos) : filename;
-        this.filename = filename;
-        this.path = path;
+        var pathParts = path.split('/');
+
+        // trim start
+        while (pathParts[0] == '/' || pathParts[0] === '') {
+            pathParts.shift();
+        }
+
+        // trim end
+        while (pathParts[pathParts.length - 1] == '/' || pathParts[pathParts.length - 1] === '') {
+            pathParts.pop();
+        }
+
+        fill.filename = pathParts.pop() || null;
+
+        if (pathParts.length) {
+            fill.parentPath = '/' + pathParts.join('/') + '/';
+        } else {
+            fill.parentPath = fill.filename ? '/' : null;
+        }
+
+        if (fill.filename) {
+            var filenameParts = fill.filename.split('.');
+
+            if (filenameParts.length > 1) {
+                fill.extension = '.' + filenameParts.pop();
+            } else {
+                fill.extension = null;
+            }
+
+            fill.name = filenameParts.join('.');
+            fill.path = fill.parentPath + fill.filename;
+        } else {
+            fill.path = '/';
+        }
+
+        return fill;
     };
 
     /* 数据结构：表示一个访问控制列表记录 */
@@ -509,8 +542,9 @@
 
                 request.extra = opt;
 
+                var response = provider.handle(request);
                 // 确保返回的是一个 Promise 对象
-                return Promise.resolve(provider.handle(request));
+                return Promise.resolve(response);
             });
         };
     });

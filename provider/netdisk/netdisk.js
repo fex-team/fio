@@ -11,7 +11,7 @@
  * 使用网盘的 IO，需要：
  *
  *     1. 在 http://dev.baidu.com 上创建应用。创建应用后，就有相应的 API Key
- *     2. 设置登录回调地址为使用的页面，设置位置：其他API->安全设置
+ *     2. 设置登录回调地址为使用的页面，设置位置：其他API -> 安全设置
  *     3. 申请 PCS API 权限
  *
  */
@@ -73,7 +73,9 @@
      * 网络请求
      */
     function ajax(opt) {
-        return Promise.resolve($.ajax(opt));
+        return new Promise(function(resolve, reject) {
+            $.ajax(opt).done(resolve).fail(reject);
+        });
     }
 
     /**
@@ -221,6 +223,7 @@
         file.modifyTime = new Date(pcs_file.mtime * 1000);
         file.size = pcs_file.size;
         file.isDir = !!pcs_file.isdir;
+        file.provider = 'netdisk';
         return file;
     }
 
