@@ -241,24 +241,25 @@
 
     // 根据文件请求分发处理
     function handle(request) {
+
         if (!access_token) throw new Error('Not Authorized');
 
         var param = {
             access_token: access_token
         };
 
+        // 默认参数
         var opt = {
             url: urls.file,
             type: 'GET',
-            data: param,
             dataType: 'JSON'
         };
 
         // 处理 path 参数
-        if (request.method != fio.file.METHOD_MOVE) {
-            param.path = request.path;
-        } else {
+        if (request.method == fio.file.METHOD_MOVE) {
             param.from = request.path;
+        } else {
+            param.path = request.path;
         }
 
         // 处理其他参数
@@ -275,15 +276,21 @@
 
             case fio.file.METHOD_WRITE:
                 opt.type = 'POST';
+
                 param.method = 'upload';
                 param.ondup = request.dupPolicy == fio.file.DUP_OVERWRITE ? 'overwrite' : 'newcopy';
 
-                if (request.data.type == 'blob') {
-                    var form = new FormData();
+                var form = new FormData();
+                if (request.data.type == fio.file.TYPE_BLOB) {
                     form.append('file', request.data.content);
-                    opt.url += $.param(param);
-                    opt.data = form;
+                } else {
+                    form.append('file', new Blob([request.data.content], {
+                        type: 'text/plain'
+                    }));
                 }
+                opt.data = form;
+                opt.processData = false;
+                opt.contentType = false;
 
                 break;
 
@@ -307,6 +314,9 @@
                 param.method = 'delete';
                 break;
         }
+
+        // 参数拼接到 URL 中
+        opt.url += '?' + $.param(param);
 
         function throwError(response) {
             throw new Error([response.error_code, response.error_msg]);
@@ -354,7 +364,6 @@
             return file;
 
         }, function(e) {
-            console.log(e);
             if (e.responseText) throwError(JSON.parse(e.responseText));
             else throw e;
         });
