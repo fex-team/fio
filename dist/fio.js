@@ -34,7 +34,9 @@
     var userImpl = {
         check: noop,
         login: noop,
-        logout: noop
+        logout: noop,
+        init: noop,
+        current: noop
     };
 
 
@@ -264,6 +266,9 @@
      * @param  {object} impl
      *     实现的代码，需要实现的方法包括：
      *
+     *     impl.init(opt): null
+     *         用户系统需要初始化的入口
+     *
      *     impl.check(): fio.user.User
      *         返回当前用户
      *
@@ -273,14 +278,17 @@
      *     impl.logout(): Promise<fio.user.User>
      *         登出当前用户
      *
+     *     impl.current(): fio.user.User
+     *         返回当前用户（如果已登录）
+     *
      */
     fio.user.impl = function(impl) {
         userImpl = impl;
     };
 
-    ['check', 'login', 'logout'].forEach(function(operation) {
+    ['check', 'login', 'logout', 'init', 'current'].forEach(function(operation) {
         fio.user[operation] = function() {
-            return Promise.resolve(userImpl[operation].apply(userImpl, arguments));
+            return userImpl[operation].apply(userImpl, arguments);
         };
     });
 

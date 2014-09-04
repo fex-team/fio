@@ -18,56 +18,19 @@
 
 /* TODO: 脱离 jQuery 依赖 */
 (function(window, $) {
-    /**
-     * 保存应用的 Api Key
-     */
-    var apiKey;
-
-    /**
-     * 登录后会有 access_token，验证后保存的当前用户
-     *
-     * 因为 API 中的 access_token 都是下划线命名法，所以这里不用骆驼，免得混淆
-     */
-    var access_token, user;
 
     /**
      * 用到的 URL 地址
      */
     var urls = {
-        /**
-         * Baidu OAuth 2.0 授权地址
-         */
-        'authorize': 'https://openapi.baidu.com/oauth/2.0/authorize',
-
-        /**
-         * 用户信息查询 API
-         */
-        'getLoggedInUser': 'https://openapi.baidu.com/rest/2.0/passport/users/getLoggedInUser',
-
-        /**
-         * 当前 URL
-         */
-        'current': window.location.href,
 
         /**
          * PCS API 接口
          *
          * @see http://developer.baidu.com/wiki/index.php?title=docs/pcs/rest/file_data_apis_list
          */
-        'file': 'https://pcs.baidu.com/rest/2.0/pcs/file',
+        'file': 'https://pcs.baidu.com/rest/2.0/pcs/file'
     };
-
-    /**
-     * 提供方的初始化方法
-     *
-     * @param  {object} opt 选项
-     *
-     *     opt.apiKey {string} 应用的 api key
-     *
-     */
-    function init(opt) {
-        apiKey = opt.apiKey || apiKey;
-    }
 
     /**
      * 网络请求
@@ -76,144 +39,6 @@
         return new Promise(function(resolve, reject) {
             $.ajax(opt).done(resolve).fail(reject);
         });
-    }
-
-    /**
-     * 解析 URL 上传递的参数
-     * @return {object}
-     */
-    function urlFragment() {
-        var url = urls.current;
-        var pattern = /[&\?#](\w+?)=([^&]+)/g;
-        var fragment = {};
-        var match;
-
-        while ((match = pattern.exec(url))) fragment[match[1]] = match[2];
-
-        return fragment;
-    }
-
-    /**
-     * 从 Cookie 中读取应用对应的 access_key
-     */
-    function readAK() {
-        var cookie = document.cookie;
-        var pattern = new RegExp(apiKey + '_ak=(.+?);');
-        var match = pattern.exec(cookie);
-        return match && decodeURIComponent(match[1]) || null;
-    }
-
-    /**
-     * 写入 access_key 到 cookie
-     */
-    function writeAK(ak, remember) {
-        var cookie = apiKey + '_ak=' + encodeURIComponent(ak);
-        cookie += '; max-age=' + (remember || 60);
-        document.cookie = cookie;
-    }
-
-    /**
-     * 清空 cookie 中对应的 ak
-     */
-    function clearAK() {
-        document.cookie = apiKey + '_ak=';
-    }
-
-    /**
-     * 检查用户登录状态
-     *
-     * @return {Promise<fio.user.User>}
-     */
-    function check() {
-
-        // 缓存检测
-        if (user && +new Date() - user.validateTime > 600) return user;
-
-        var fragment = urlFragment();
-
-        // 登录回调；会在参数上有 AK
-        if (fragment.access_token) {
-
-            // 把 AK 保存在 Cookie 里
-            writeAK(fragment.access_token, fragment.state);
-
-            // 清掉登录回调参数
-            document.location.href = urls.current.substr(0, document.location.href.indexOf('#'));
-
-        }
-
-        // 非登录回调，读取 AK
-        else {
-
-            // 尝试从 Cookie 读取 AK
-            access_token = readAK();
-
-            // 读取失败返回
-            if (!access_token) return null;
-        }
-
-        // 使用 AK 获得用户信息
-        return ajax({
-
-            url: urls.getLoggedInUser,
-            data: {
-                access_token: access_token
-            },
-            dataType: 'jsonp'
-
-        }).then(function(ret) {
-
-            // 授权错误，可能是 AK 过时了
-            if (ret.error) {
-                access_token = null;
-                clearAK();
-                return null;
-            }
-
-            user = new fio.user.User(ret.uid, ret.uname);
-
-            user.smallImage = 'http://tb.himg.baidu.com/sys/portraitn/item/' + ret.portrait;
-            user.largeImage = 'http://tb.himg.baidu.com/sys/portrait/item/' + ret.portrait;
-            user.access_token = access_token;
-            user.validateTime = +new Date();
-
-            return user;
-        });
-    }
-
-    /**
-     * 登录，直接跳到百度授权登录页面
-     *
-     * @param  {Object} opt 登录选项
-     *
-     *     opt.force {boolean}
-     *         表示是否强制显示登录面板，而不是自动登录。默认为 false
-     *
-     *     opt.remember {int}
-     *         表示是否记住用户登录状态，值表示记住的时间（秒）
-     */
-    function login(opt) {
-        window.location.href = urls.authorize + '?' + [
-            'client_id=' + apiKey,
-            'response_type=token',
-            'scope=basic netdisk',
-            'redirect_uri=' + urls.current, // 调回到当前页面，check 的时候就能捕获 AK
-            'display=page',
-            'force_login=' + (opt && opt.force ? 1 : 0),
-            'state=' + opt.remember
-        ].join('&');
-    }
-
-    /**
-     * 注销
-     * @return {[type]} [description]
-     */
-    function logout() {
-        var logouted = user;
-        user = null;
-        access_token = null;
-        clearAK();
-        return logouted;
     }
 
     // 转换 PCS 的文件数据为 fio.file.File
@@ -228,6 +53,11 @@
     }
 
     function getMeta(path) {
+        var user = fio.user.current();
+        var access_token = user && user.access_token;
+
+        if (!access_token) throw new Error('Not Authorized');
+
         return ajax({
             url: urls.file,
             data: {
@@ -241,6 +71,8 @@
 
     // 根据文件请求分发处理
     function handle(request) {
+        var user = fio.user.current();
+        var access_token = user && user.access_token;
 
         if (!access_token) throw new Error('Not Authorized');
 
@@ -369,16 +201,9 @@
         });
     }
 
-    // 用户系统实现
-    fio.user.impl({
-        check: check,
-        login: login,
-        logout: logout
-    });
 
     // 网盘 IO 提供实现
     fio.provider.register('netdisk', {
-        init: init,
         handle: handle
     });
 })(window, jQuery);
