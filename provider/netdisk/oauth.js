@@ -199,6 +199,7 @@
             'force_login=' + (opt && opt.force ? 1 : 0),
             'state=' + opt.remember
         ].join('&');
+        return Promise.resolve();
     }
 
     /**
