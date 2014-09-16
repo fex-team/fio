@@ -159,7 +159,7 @@
         }).then(function(ret) {
 
             // 授权错误，可能是 AK 过时了
-            if (ret.error) {
+            if (ret.err_code) {
                 access_token = null;
                 clearAK();
                 return null;
