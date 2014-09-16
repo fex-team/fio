@@ -286,7 +286,7 @@
         userImpl = impl;
     };
 
-    ['check', 'login', 'logout', 'init', 'current'].forEach(function(operation) {
+    $.each(['check', 'login', 'logout', 'init', 'current'], function(k, operation) {
         fio.user[operation] = function() {
             return userImpl[operation].apply(userImpl, arguments);
         };
@@ -517,7 +517,7 @@
      * });
      * ```
      */
-    ['read', 'write', 'list', 'move', 'delete', 'mkdir', 'readAcl', 'writeAcl'].forEach(function(operation) {
+    $.each(['read', 'write', 'list', 'move', 'delete', 'mkdir', 'readAcl', 'writeAcl'], function(k, operation) {
 
         fio.file[operation] = function(opt) {
             return fio.user.check().then(function(user) {
