@@ -82,7 +82,7 @@
      */
     function readAK() {
         var cookie = document.cookie;
-        var pattern = new RegExp(apiKey + '_ak=(.+?);');
+        var pattern = new RegExp(apiKey + '_ak=(.*?)(;|$)');
         var match = pattern.exec(cookie);
         return match && decodeURIComponent(match[1]) || null;
     }
