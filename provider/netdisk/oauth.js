@@ -132,6 +132,8 @@
 
             // 清掉登录回调参数
             document.location.href = urls.current.substr(0, document.location.href.indexOf('#'));
+            
+            return Promise.resolve(null);
 
         }
 
