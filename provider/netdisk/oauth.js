@@ -197,7 +197,7 @@
             'redirect_uri=' + (opt.redirectUrl || urls.current), // 调回到当前页面，check 的时候就能捕获 AK
             'display=page',
             'force_login=' + (opt && opt.force ? 1 : 0),
-            'state=' + opt.remember
+            'state=' + (opt.remember || '')
         ].join('&');
         return Promise.resolve();
     }
