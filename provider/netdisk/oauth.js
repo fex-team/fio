@@ -122,6 +122,8 @@
         // 缓存检测
         if (user && +new Date() - user.validateTime > 60 * 60 * 1000) return Promise.resolve(user);
 
+        if (check.pendingRequest) return check.pendingRequest;
+
         var fragment = urlFragment();
 
         // 登录回调；会在参数上有 AK
@@ -132,8 +134,8 @@
 
             // 清掉登录回调参数
             document.location.href = urls.current.substr(0, document.location.href.indexOf('#'));
-            
-            return Promise.resolve(null);
+
+            return (check.pendingRequest = Promise.resolve(null));
 
         }
 
@@ -146,8 +148,6 @@
             // 读取失败返回
             if (!access_token) return Promise.resolve(null);
         }
-
-        if (check.pendingRequest) return check.pendingRequest;
 
         // 使用 AK 获得用户信息
         return check.pendingRequest = ajax({
@@ -199,7 +199,7 @@
             'redirect_uri=' + (opt.redirectUrl || urls.current), // 调回到当前页面，check 的时候就能捕获 AK
             'display=page',
             'force_login=' + (opt && opt.force ? 1 : 0),
-            'state=' + opt.remember
+            'state=' + (opt.remember || 60) // remember second
         ].join('&');
         return Promise.resolve();
     }
