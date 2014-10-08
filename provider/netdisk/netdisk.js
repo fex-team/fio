@@ -196,7 +196,11 @@
             return file;
 
         }, function(e) {
-            if (e.responseText) throwError(JSON.parse(e.responseText));
+            var error = new Error('Netdisk Request Error');
+            if (e.responseText) {
+                error.detail = JSON.parse(e.responseText);
+                throw error;
+            }
             else throw e;
         });
     }
