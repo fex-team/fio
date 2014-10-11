@@ -36,8 +36,20 @@
      * 网络请求
      */
     function ajax(opt) {
+        opt.cache = false;
         return new Promise(function(resolve, reject) {
             $.ajax(opt).done(resolve).fail(reject);
+        });
+    }
+
+    /**
+     * 延时执行
+     */
+    function wait(delay) {
+        return new Promise(function(resolve) {
+            setTimeout(function() {
+                resolve();
+            }, delay);
         });
     }
 
@@ -150,59 +162,96 @@
         // 参数拼接到 URL 中
         opt.url += '?' + $.param(param);
 
-        function throwError(response) {
-            throw new Error([response.error_code, response.error_msg]);
+        // 重试次数
+        var retry = request.extra.retry === undefined ? 2 : parseInt(request.extra.retry, 10);
+        var failed = 0;
+
+        function tryRequest() {
+
+            // 捕捉到错误后重试或抛异常
+            function retryOrThrow(e) {
+                if (window.console) {
+                    window.console.warn('PCS Fail(' + (++failed) + '): ', {
+                        request: request,
+                        error: e
+                    });
+                }
+                if (retry--) {
+                    return wait(500).then(tryRequest);
+                } else {
+                    e.requestMethod = request.method;
+                    e.requestPath = request.path;
+                    e.requestUser = request.user && request.user.username || null;
+                    if (request.dataType)
+                        e.requestDataType = request.dataType;
+                    throw e;
+                }
+            }
+
+            function success(response) {
+
+                // 调用失败
+                if (response.error_code) {
+                    throw new fio.FileRequestError(response);
+                }
+
+                // 读取操作需要抓取文件元数据后返回
+                if (request.method === fio.file.METHOD_READ) {
+
+                    return getMeta(param.path).then(function(meta) {
+                        var file = pcs2file(meta.list[0]);
+                        file.data = new fio.file.Data(response);
+                        return file;
+                    });
+                }
+
+                // 列文件返回
+                if (request.method == fio.file.METHOD_LIST) {
+                    return response.list.map(pcs2file);
+                }
+
+                // 移动文件返回
+                if (request.method == fio.file.METHOD_MOVE) {
+                    return getMeta(response.to).then(pcs2file);
+                }
+
+                // 删除文件返回
+                if (request.method == fio.file.METHOD_DELETE) {
+                    return new fio.file.File(request.path);
+                }
+
+                var file = pcs2file(response);
+
+                // 写文件返回
+                if (request.method === fio.file.METHOD_WRITE) {
+                    file.data = request.data;
+                }
+
+                return file;
+            }
+
+            function fail($xhr) {
+                var response = $xhr.responseText;
+
+                var responseInfo = {
+                    readyState: $xhr.readyState,
+                    status: $xhr.status,
+                    statusText: $xhr.statusText,
+                    headers: $xhr.getAllResponseHeaders(),
+                    responseText: response,
+                };
+
+                if (response) try {
+                    responseInfo.detail = JSON.parse(response);
+                } catch (ignore) {}
+
+                return retryOrThrow(new fio.FileRequestError(responseInfo));
+            }
+
+            return ajax(opt).then(success, fail);
         }
 
-        return ajax(opt).then(function(response) {
-
-            // 调用失败
-            if (response.error_code) {
-                throwError(response);
-            }
-
-            // 读取操作需要抓取文件元数据后返回
-            if (request.method === fio.file.METHOD_READ) {
-
-                return getMeta(param.path).then(function(meta) {
-                    var file = pcs2file(meta.list[0]);
-                    file.data = new fio.file.Data(response);
-                    return file;
-                });
-            }
-
-            // 列文件返回
-            if (request.method == fio.file.METHOD_LIST) {
-                return response.list.map(pcs2file);
-            }
-
-            // 移动文件返回
-            if (request.method == fio.file.METHOD_MOVE) {
-                return getMeta(response.to).then(pcs2file);
-            }
-
-            // 删除文件返回
-            if (request.method == fio.file.METHOD_DELETE) {
-                return new fio.file.File(request.path);
-            }
-
-            var file = pcs2file(response);
-
-            // 写文件返回
-            if (request.method === fio.file.METHOD_WRITE) {
-                file.data = request.data;
-            }
-
-            return file;
-
-        }, function(e) {
-            var error = new Error('Netdisk Request Error');
-            if (e.responseText) {
-                error.detail = JSON.parse(e.responseText);
-                throw error;
-            }
-            else throw e;
-        });
+        return tryRequest();
     }
 
 
