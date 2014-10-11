@@ -120,7 +120,7 @@
     function check() {
 
         // 缓存检测
-        if (user && +new Date() - user.validateTime > 60 * 60 * 1000) return Promise.resolve(user);
+        if (user && +new Date() - user.validateTime < 60 * 60 * 1000) return Promise.resolve(user);
 
         if (check.pendingRequest) return check.pendingRequest;
 

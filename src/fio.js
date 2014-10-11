@@ -39,6 +39,29 @@
         current: noop
     };
 
+    function inherit(sub, parent) {
+        sub.prototype = Object.create(parent.prototype);
+        sub.prototype.constructor = sub;
+    }
+
+    function AuthError() { Error.apply(this, arguments); }
+    function FileRequestError(detail) {
+        Error.call(this, detail);
+        if (typeof(detail) == 'object') {
+            for (var p in detail) {
+                if (detail.hasOwnProperty(p)) this[p] = detail[p];
+            }
+        } else {
+            this.detail = detail;
+        }
+    }
+
+    inherit(AuthError, Error);
+    inherit(FileRequestError, Error);
+
+    fio.AuthError = AuthError;
+    fio.FileRequestError = FileRequestError;
+
 
     /* 数据结构：表示一个用户 */
     function User(id, username) {
