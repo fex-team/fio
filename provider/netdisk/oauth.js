@@ -201,7 +201,7 @@
             'force_login=' + (opt && opt.force ? 1 : 0),
             'state=' + (opt.remember || 60) // remember second
         ].join('&');
-        return Promise.resolve();
+        return new Promise(); // never fullfilled
     }
 
     /**
@@ -213,7 +213,7 @@
         user = null;
         access_token = null;
         clearAK();
-        return logouted;
+        return Promise.resolve(logouted);
     }
 
     // 用户系统实现
