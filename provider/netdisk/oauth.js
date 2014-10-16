@@ -201,7 +201,7 @@
             'force_login=' + (opt && opt.force ? 1 : 0),
             'state=' + (opt.remember || 60) // remember second
         ].join('&');
-        return new Promise(); // never fullfilled
+        return new Promise(function() {}); // never fullfilled
     }
 
     /**
