@@ -149,16 +149,36 @@
             if (!access_token) return Promise.resolve(null);
         }
 
+        function getUserInfo() {
+            return new Promise(function(resolve, reject) {
+                // 超时重试
+                var resolved = false;
+                var timeouts = [1000, 2000, 3000];
+                var timer = 0;
+
+                function request() {
+                    clearTimeout(timer);
+                    if (!resolved && timeouts.length) {
+                        timer = setTimeout(request, timeouts.shift());
+                    }
+                    return ajax({
+                        url: urls.getLoggedInUser,
+                        data: {
+                            access_token: access_token
+                        },
+                        dataType: 'jsonp'
+                    }).then(function(ret) {
+                        clearTimeout(timer);
+                        if (!resolved) resolve(ret);
+                        resolved = true;
+                    });
+                }
+                request();
+            });
+        }
+
         // 使用 AK 获得用户信息
-        return check.pendingRequest = ajax({
-
-            url: urls.getLoggedInUser,
-            data: {
-                access_token: access_token
-            },
-            dataType: 'jsonp'
-
-        }).then(function(ret) {
+        return check.pendingRequest = getUserInfo().then(function(ret) {
 
             // 授权错误，可能是 AK 过时了
             if (ret.error_code) {
