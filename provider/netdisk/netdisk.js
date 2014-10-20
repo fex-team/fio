@@ -88,9 +88,7 @@
 
         if (!access_token) throw new Error('Not Authorized');
 
-        var param = {
-            access_token: access_token
-        };
+        var param = {};
 
         // 默认参数
         var opt = {
@@ -98,13 +96,6 @@
             type: 'GET',
             dataType: 'JSON'
         };
-
-        // 处理 path 参数
-        if (request.method == fio.file.METHOD_MOVE) {
-            param.from = request.path;
-        } else {
-            param.path = request.path;
-        }
 
         // 处理其他参数
         switch (request.method) {
@@ -159,8 +150,15 @@
                 break;
         }
 
+        // 处理 path 参数
+        if (request.method == fio.file.METHOD_MOVE) {
+            param.from = request.path;
+        } else {
+            param.path = request.path;
+        }
+
         // 参数拼接到 URL 中
-        opt.url += '?' + $.param(param);
+        opt.url += '?' + $.param(param) + '&access_token=' + access_token;
 
         // 重试次数
         var retry = request.extra.retry === undefined ? 2 : parseInt(request.extra.retry, 10);
@@ -177,11 +175,12 @@
                     });
                 }
                 if (retry--) {
-                    return wait(500).then(tryRequest);
+                    return wait(150 * failed).then(tryRequest);
                 } else {
                     e.requestMethod = request.method;
                     e.requestPath = request.path;
                     e.requestUser = request.user && request.user.username || null;
+                    e.requestParam = param;
                     if (request.dataType)
                         e.requestDataType = request.dataType;
                     throw e;
@@ -189,6 +188,10 @@
             }
 
             function success(response) {
+
+                function meta2pcs(meta) {
+                    return meta.list[0];
+                }
 
                 // 调用失败
                 if (response.error_code) {
@@ -198,8 +201,7 @@
                 // 读取操作需要抓取文件元数据后返回
                 if (request.method === fio.file.METHOD_READ) {
 
-                    return getMeta(param.path).then(function(meta) {
-                        var file = pcs2file(meta.list[0]);
+                    return getMeta(param.path).then(meta2pcs).then(pcs2file).then(function(file) {
                         file.data = new fio.file.Data(response);
                         return file;
                     });
@@ -212,7 +214,7 @@
 
                 // 移动文件返回
                 if (request.method == fio.file.METHOD_MOVE) {
-                    return getMeta(response.to).then(pcs2file);
+                    return getMeta(response.extra.list[0].to).then(meta2pcs).then(pcs2file);
                 }
 
                 // 删除文件返回
