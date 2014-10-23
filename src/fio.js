@@ -40,7 +40,7 @@
     };
 
     function inherit(sub, parent) {
-        sub.prototype = Object.create(parent.prototype);
+        sub.prototype = new parent;
         sub.prototype.constructor = sub;
     }
 
