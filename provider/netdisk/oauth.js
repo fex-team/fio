@@ -120,7 +120,9 @@
     function check() {
 
         // 缓存检测
-        if (user && +new Date() - user.validateTime > 60 * 60 * 1000) return Promise.resolve(user);
+        if (user && +new Date() - user.validateTime < 60 * 60 * 1000) return Promise.resolve(user);
+
+        if (check.pendingRequest) return check.pendingRequest;
 
         var fragment = urlFragment();
 
@@ -135,6 +137,8 @@
             
             return Promise.resolve(null);
 
+            return (check.pendingRequest = new Promise(function() {}));
+
         }
 
         // 非登录回调，读取 AK
@@ -147,10 +151,15 @@
             if (!access_token) return Promise.resolve(null);
         }
 
-        if (check.pendingRequest) return check.pendingRequest;
+        function getUserInfo() {
+            return new Promise(function(resolve, reject) {
+                // 超时重试
+                var resolved = false;
+                var timeouts = [1000, 2000, 3000];
+                var timer = 0;
 
         // 使用 AK 获得用户信息
-        return check.pendingRequest = ajax({
+        return check.pendingRequest = getUserInfo().then(function(ret) {
 
             url: urls.getLoggedInUser,
             data: {
@@ -199,9 +208,9 @@
             'redirect_uri=' + (opt.redirectUrl || urls.current), // 调回到当前页面，check 的时候就能捕获 AK
             'display=page',
             'force_login=' + (opt && opt.force ? 1 : 0),
-            'state=' + (opt.remember || '')
+            'state=' + (opt.remember || 60) // remember second
         ].join('&');
-        return Promise.resolve();
+        return new Promise(function() {}); // never fullfilled
     }
 
     /**
@@ -213,7 +222,7 @@
         user = null;
         access_token = null;
         clearAK();
-        return logouted;
+        return Promise.resolve(logouted);
     }
 
     // 用户系统实现
