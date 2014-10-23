@@ -238,7 +238,7 @@
                     status: $xhr.status,
                     statusText: $xhr.statusText,
                     headers: $xhr.getAllResponseHeaders(),
-                    responseText: response,
+                    responseText: response
                 };
 
                 if (response) try {
