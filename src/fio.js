@@ -559,6 +559,7 @@
                 }
 
                 if (operation == 'move') {
+                    request.dupPolicy = opt.ondup;
                     request.newPath = opt.newPath;
                     delete opt.newPath;
                 }
