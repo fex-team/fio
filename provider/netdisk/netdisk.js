@@ -70,15 +70,28 @@
 
         if (!access_token) throw new Error('Not Authorized');
 
-        return ajax({
-            url: urls.file,
-            data: {
-                method: 'meta',
-                access_token: access_token,
-                path: path
-            },
-            dataType: 'json'
-        });
+        function request() {
+            return ajax({
+                url: urls.file,
+                data: {
+                    method: 'meta',
+                    access_token: access_token,
+                    path: path
+                },
+                dataType: 'json'
+            })['catch'](function(e) {
+                if (request.retry++ > 2) throw e;
+                return new Promise(function(resolve) {
+                    setTimeout(function() {
+                        resolve(request());
+                    }, 200 * request.retry);
+                });
+            });
+        }
+
+        request.retry = 0;
+
+        return request();
     }
 
     // 根据文件请求分发处理
@@ -142,6 +155,9 @@
                 opt.type = 'POST';
                 param.method = 'move';
                 param.to = request.newPath;
+                if (request.dupPolicy == fio.file.DUP_RENAME) {
+                    param.ondup = 'newcopy';
+                }
                 break;
 
             case fio.file.METHOD_DELETE:
@@ -214,7 +230,11 @@
 
                 // 移动文件返回
                 if (request.method == fio.file.METHOD_MOVE) {
-                    return getMeta(response.extra.list[0].to).then(meta2pcs).then(pcs2file);
+                    return new Promise(function(resolve) {
+                        setTimeout(function() {
+                            resolve(getMeta(response.extra.list[0].to).then(meta2pcs).then(pcs2file));
+                        }, 200);
+                    });
                 }
 
                 // 删除文件返回
