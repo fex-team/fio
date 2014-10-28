@@ -177,21 +177,19 @@
         opt.url += '?' + $.param(param) + '&access_token=' + access_token;
 
         // 重试次数
-        var retry = request.extra.retry === undefined ? 2 : parseInt(request.extra.retry, 10);
+        var retry = request.extra.retry === undefined ? 3 : parseInt(request.extra.retry, 10);
         var failed = 0;
 
         function tryRequest() {
 
             // 捕捉到错误后重试或抛异常
             function retryOrThrow(e) {
-                if (window.console) {
-                    window.console.warn('PCS Fail(' + (++failed) + '): ', {
-                        request: request,
-                        error: e
-                    });
-                }
+                window.console.warn('PCS Fail(' + (++failed) + '): ', {
+                    request: request,
+                    error: e
+                });
                 if (retry--) {
-                    return wait(150 * failed).then(tryRequest);
+                    return wait(1000 * failed).then(tryRequest);
                 } else {
                     e.requestMethod = request.method;
                     e.requestPath = request.path;
